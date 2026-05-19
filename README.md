@@ -1,7 +1,7 @@
 # HMCTS Caseworker Task Management System
 
-**Author:** [Your Name]  
-**GitHub:** [Your repository URL]
+**Author:** Sanju  
+**Repository:** https://github.com/samrjj32/DTS-TEST
 
 Implementation of the [DTS Developer Technical Test](https://github.com/hmcts/dts-developer-challenge) — a full-stack application that lets HMCTS caseworkers create, view, update, and delete tasks.
 
