@@ -1,0 +1,80 @@
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+
+{% extends "template.njk" %}
+
+{% set statusColour = {
+  "PENDING": "grey",
+  "IN_PROGRESS": "blue",
+  "COMPLETED": "green",
+  "CANCELLED": "red"
+} %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h1 class="govuk-heading-xl">Caseworker tasks</h1>
+      <p class="govuk-body-l">Manage your casework tasks in one place.</p>
+
+      {% if error %}
+        {{ govukNotificationBanner({
+          type: "important",
+          titleText: "There is a problem",
+          html: "<p class='govuk-notification-banner__heading'>" + error + "</p><p class='govuk-body'>Make sure the backend API is running on port 4000.</p>"
+        }) }}
+      {% endif %}
+
+      {% if deleted %}
+        {{ govukNotificationBanner({
+          type: "success",
+          titleText: "Success",
+          text: "Task deleted successfully."
+        }) }}
+      {% endif %}
+
+      <div class="govuk-!-margin-bottom-6">
+        {{ govukButton({
+          text: "Create new task",
+          href: "/tasks/new",
+          isStartButton: true
+        }) }}
+      </div>
+
+      {% if tasks.length === 0 and not error %}
+        <p class="govuk-body">You have no tasks yet. Create your first task to get started.</p>
+      {% elif tasks.length > 0 %}
+        <table class="govuk-table">
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th scope="col" class="govuk-table__header">Title</th>
+              <th scope="col" class="govuk-table__header">Status</th>
+              <th scope="col" class="govuk-table__header">Due</th>
+              <th scope="col" class="govuk-table__header"><span class="govuk-visually-hidden">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            {% for task in tasks %}
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell">
+                  <a class="govuk-link" href="/tasks/{{ task.id }}">{{ task.title }}</a>
+                </td>
+                <td class="govuk-table__cell">
+                  {{ govukTag({
+                    text: formatStatusLabel(task.status),
+                    classes: "govuk-tag--" + statusColour[task.status]
+                  }) }}
+                </td>
+                <td class="govuk-table__cell">{{ formatDateTime(task.dueDateTime) }}</td>
+                <td class="govuk-table__cell">
+                  <a class="govuk-link" href="/tasks/{{ task.id }}">View</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

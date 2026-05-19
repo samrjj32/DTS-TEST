@@ -1,0 +1,7 @@
+.DS_Store
+.idea/
+*.iml
+
+# Local env / secrets
+.env
+*.log

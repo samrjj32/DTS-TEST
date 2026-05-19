@@ -1,0 +1,92 @@
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+
+{% extends "template.njk" %}
+
+{% set statusColour = {
+  "PENDING": "grey",
+  "IN_PROGRESS": "blue",
+  "COMPLETED": "green",
+  "CANCELLED": "red"
+} %}
+
+{% block content %}
+  {{ govukBackLink({ text: "Back to tasks", href: "/" }) }}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ task.title }}</h1>
+
+      {% if success %}
+        {{ govukNotificationBanner({
+          type: "success",
+          titleText: "Success",
+          text: success
+        }) }}
+      {% endif %}
+
+      {% if error %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: [{ text: error, href: "#status" }]
+        }) }}
+      {% endif %}
+
+      {{ govukSummaryList({
+        rows: [
+          {
+            key: { text: "Description" },
+            value: { text: task.description or "—" }
+          },
+          {
+            key: { text: "Status" },
+            value: {
+              html: govukTag({
+                text: formatStatusLabel(task.status),
+                classes: "govuk-tag--" + statusColour[task.status]
+              })
+            }
+          },
+          {
+            key: { text: "Due date and time" },
+            value: { text: formatDateTime(task.dueDateTime) }
+          },
+          {
+            key: { text: "Created" },
+            value: { text: formatDateTime(task.createdAt) }
+          }
+        ]
+      }) }}
+
+      <h2 class="govuk-heading-m govuk-!-margin-top-6">Update status</h2>
+      <form method="post" action="/tasks/{{ task.id }}/status" class="govuk-!-margin-bottom-8">
+        {{ govukSelect({
+          label: { text: "New status" },
+          id: "status",
+          name: "status",
+          items: statusItems
+        }) }}
+
+        {{ govukButton({ text: "Update status", type: "submit" }) }}
+      </form>
+
+      <h2 class="govuk-heading-m">Delete task</h2>
+      {{ govukWarningText({
+        text: "This will permanently remove the task."
+      }) }}
+      <form method="post" action="/tasks/{{ task.id }}/delete">
+        {{ govukButton({
+          text: "Delete task",
+          classes: "govuk-button--warning",
+          type: "submit"
+        }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}
